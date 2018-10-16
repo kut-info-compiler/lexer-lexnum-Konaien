@@ -55,8 +55,14 @@ public class Lexer {
 		/*   delta[現状態][入力記号] */
 
 		/*  P  X  0  1  A  OTHER */
-		/*{ ?, ?, ?, ?, ?, ?}, /* 状態0 */
-		/*{ ?, ?, ?, ?, ?, ?}, /* 状態1 */
+		{ 4, -1, 1, 6, 5, -1}, /* 状態0 一文字目 */
+		{ 3, 2, 7, 7, 5, -1}, /* 状態1 最初が0の場合*/
+		{ -1, -1, 5, 5, 5, -1}, /* ok状態2 0x or 0X の場合*/
+		{ -1, -1, 4, 4, 4, -1} /*ok状態3 小数部分*/
+		{ -1, -1, 3, 3, -1, -1} /*状態4 最初が小数点の場合*/
+		{ -1, -1, 5, 5, 5, -1} /*ok状態5 16進数*/
+		{ 3, -1, 6, 6, 5, -1} /*ok状態6 10進数*/
+		{ 3, -1, 7, 7, 5, -1} /*最初が0の場合の10進数(16進数になる可能性アリ)*/
 		/*...*/
 	};
 
@@ -84,6 +90,19 @@ public class Lexer {
 			/* TODO */
 			/* 行先がなければループを抜ける */
 			/* 行先が受理状態であれば「最後の受理状態」を更新する */
+			if(nextState == -1)break;
+
+			if(nextState == 1 || nextState == 5 || nextState == 6){
+			    acceptMarker = Token.TYPE.INT;
+			    acceptPos = p;
+			}
+
+			if(nextState == 3}{
+			    acceptMarker = Token.TYPE.DEC;
+			    acceptPos = p;
+			}
+		            
+			
 
 			currentState = nextState;
 		}
