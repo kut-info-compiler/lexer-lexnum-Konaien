@@ -1,21 +1,27 @@
 #!/bin/bash
 
-TEST_DIR=../lexer-lexnum-00test
-export TEST_DIR
+TESTCASES_DIR=${TEST_DIR:-.}/testcases
+LEXER_CLASS=${LEXER_CLASS:-Lexer}
 
-TEST_SH=$TEST_DIR/test.sh
-TEST_REPO=https://github.com/kut-info-compiler/lexer-lexnum-00test.git
+function do_test() {
+    local input_file=$1
+    
+    while read instr outstr
+    do
+	echo $instr | java $LEXER_CLASS > test.out || exit 1
+	
+	result_line="IN: $instr OUT: "`cat test.out`" ANSWER: $outstr ==> "
+	echo $outstr | diff - test.out > /dev/null
+	if [ $? = 0 ]; then
+	    echo $result_line "OK"
+	else
+	    echo $result_line "NG"
+	fi
+    done < $input_file
+}
 
-if [ \! -x $TEST_SH ]; then
-    echo
-    echo "ERROR"
-    echo "Cannot find ${TEST_SH}."
-    echo "Clone the testing repository in the parent dir."
-    echo ""
-    echo "  > cd .."
-    echo "  > git clone ${TEST_REPO}"
-    echo ""
-    exit
-fi    
-
-exec $TEST_SH
+for i in $TESTCASES_DIR/*.in
+do
+    echo testing ${i##*/} || exit 1
+    do_test $i
+done
